@@ -1,3 +1,13 @@
+/************Copyright(C) Kaikai Technology 2019-03-29***********************
+File name		: MyTask.c
+Description		: 主要实现系统多任务管理功能
+Platform		: MDK V5.26.0.0
+Version			: V1.0
+Author			: Jason
+Create Time		: 2019-04-22
+Modify			: 
+Modify Time		: 
+******************************************************************************/
 #include "MyTask.h"
 #include "Fifo.h"
 #include "Memory.h"
@@ -7,6 +17,7 @@
 #include "Wifi.h"
 #include "Pack.h"
 #include "WifiCon.h"
+#include "ReCmd.h"
 
 #define START_TASK_PRIO		1
 #define START_STK_SIZE 		32
@@ -14,12 +25,12 @@ TaskHandle_t StartTask_Handler;
 void start_task(void *pvParameters);
 
 #define MASTER1_TASK_PRIO		2
-#define MASTER1_STK_SIZE 		512
+#define MASTER1_STK_SIZE 		256
 TaskHandle_t MASTER1Task_Handler;
 void master1_task(void *pvParameters);
 
 #define MASTER2_TASK_PRIO		3
-#define MASTER2_STK_SIZE 		256
+#define MASTER2_STK_SIZE 		512
 TaskHandle_t MASTER2Task_Handler;
 void master2_task(void *pvParameters);
 
@@ -35,18 +46,18 @@ void master4_task(void *pvParameters);
 
 void start_system()
 {
-	xTaskCreate((TaskFunction_t )start_task,            //任务函数
-				(const char*    )"start_task",          //任务名称
-				(uint16_t       )START_STK_SIZE,        //任务堆栈大小
-				(void*          )NULL,                  //传递给任务函数的参数
-				(UBaseType_t    )START_TASK_PRIO,       //任务优先级
-				(TaskHandle_t*  )&StartTask_Handler);   //任务句柄              
-	vTaskStartScheduler();          //开启任务调度
+	xTaskCreate((TaskFunction_t )start_task,
+				(const char*    )"start_task",
+				(uint16_t       )START_STK_SIZE,
+				(void*          )NULL,
+				(UBaseType_t    )START_TASK_PRIO,
+				(TaskHandle_t*  )&StartTask_Handler);
+	vTaskStartScheduler();
 }
 
 void start_task(void *pvParameters)
 {
-	taskENTER_CRITICAL();			//进入临界区
+	taskENTER_CRITICAL();
 
 	xTaskCreate((TaskFunction_t )master1_task,
 				(const char*    )"master1_task",
@@ -76,8 +87,8 @@ void start_task(void *pvParameters)
 				(UBaseType_t    )MASTER4_TASK_PRIO,
 				(TaskHandle_t*  )&MASTER4Task_Handler);
 
-	vTaskDelete(StartTask_Handler);	//删除开始任务
-	taskEXIT_CRITICAL();			//退出临界区
+	vTaskDelete(StartTask_Handler);
+	taskEXIT_CRITICAL();
 }
 
 void master1_task(void *pvParameters)//任务一用于232通信
@@ -91,7 +102,7 @@ void master1_task(void *pvParameters)//任务一用于232通信
 			if(fifo_gets(&TagCacheFifo,buf,10))
 			{
 				printf_232("232=%s",buf);
-				printf_wifi("%s",buf);
+				printf("232->wifi=%s",buf);
 			}
 		}
 		vTaskDelay(50);
@@ -100,28 +111,37 @@ void master1_task(void *pvParameters)//任务一用于232通信
 
 void master2_task(void *pvParameters)//用于数据打包如对
 {
-	u8 buf[10];
+	u16 tmp;
+	u8 buf[100];
 	wifi_reset();
 	while(1)
 	{
-		TogglePin(LED3);
-		if(!fifo_empty(&WifiFifo))
+		wifi_con();
+		if(Wifi_t.connect)
 		{
-			if(fifo_gets(&WifiFifo,buf,10))
+			if(!fifo_empty(&WifiFifo))
 			{
-				printf_wifi("%s",buf);
-				printf_232("wifi receive=%s",buf);
+				tmp = fifo_validSize(&WifiFifo);
+				memset(buf,0,sizeof(buf));
+				if(fifo_gets(&WifiFifo,buf,tmp))
+				{
+					printf_232("link_wifi->%s\r\n",buf);
+					Analysis_cmd(buf);
+				}
 			}
 		}
-		wifi_con();
-		vTaskDelay(100);
+		else
+		{
+			fifo_Clr(&WifiFifo);
+		}
+		vTaskDelay(50);
 	}
 }
 void master3_task(void *pvParameters)//简单任务
 {
 	while(1)
 	{
-		TogglePin(LED4);
+		//TogglePin(LED4);
 		vTaskDelay(150);
 	}
 }
@@ -130,7 +150,7 @@ void master4_task(void *pvParameters)//简单任务
 {
 	while(1)
 	{
-		TogglePin(LED2);
+		//TogglePin(LED2);
 		vTaskDelay(120);
 	}
 }

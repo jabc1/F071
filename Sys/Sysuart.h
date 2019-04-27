@@ -1,3 +1,13 @@
+/************Copyright(C) Kaikai Technology 2019-03-29***********************
+File name		: Sysuart.h
+Description		: 主要实现系统串口相关定义流程
+Platform		: MDK V5.26.0.0
+Version			: V1.0
+Author			: Jason
+Create Time		: 2019-04-25
+Modify			: 
+Modify Time		: 
+******************************************************************************/
 #ifndef _sys_uart_h
 #define _sys_uart_h
 #include "arm_base_define.h"

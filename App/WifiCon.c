@@ -70,7 +70,7 @@ void wifi_con()
 		case WIFIMODE_e:
 			if(wifi_mode_send_cmd((u8 *)WIFIMODE,(u8 *)OK,10))
 			{
-				WifiStatus = AT_e;//模块异常，重新连接
+				WifiStatus = ATE0_e;//模块异常，重新连接
 			}
 			else
 			{
@@ -78,19 +78,15 @@ void wifi_con()
 			}
 			break;
 		case RST_e:
-			if(wifi_mode_send_cmd((u8 *)RST,(u8 *)OK,10))
-			{
-				WifiStatus = AT_e;//模块异常，重新连接
-			}
-			else
-			{
-				WifiStatus = CWJAP_e;//模块正常
-			}
+			printf("%s",RST);
+			WifiStatus = CWJAP_e;
+			cmd_wait_time(100);
 			break;
 		case CWJAP_e:
-			if(wifi_mode_send_cmd((u8 *)CWJAP,(u8 *)OK,10))
+			if((wifi_mode_send_cmd((u8 *)CWJAP,(u8 *)OK,10)))
 			{
-				WifiStatus = AT_e;//模块异常，重新连接
+				WifiStatus = CIPMUX_e;//模块异常，重新连接
+				cmd_wait_time(20);
 			}
 			else
 			{
@@ -101,7 +97,7 @@ void wifi_con()
 		case CIPMUX_e:
 			if(wifi_mode_send_cmd((u8 *)CIPMUX,(u8 *)OK,10))
 			{
-				WifiStatus = AT_e;//模块异常，重新连接
+				WifiStatus = CIPMUX_e;//模块异常，重新连接
 			}
 			else
 			{
@@ -112,7 +108,8 @@ void wifi_con()
 		case CIPMODE1_e:
 			if(wifi_mode_send_cmd((u8 *)CIPMODE1,(u8 *)OK,10))
 			{
-				WifiStatus = AT_e;//模块异常，重新连接
+				WifiStatus = CIPMUX_e;//模块异常，重新连接
+				cmd_wait_time(20);
 			}
 			else
 			{

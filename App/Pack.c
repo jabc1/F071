@@ -53,7 +53,7 @@ u8 Pack(u8 *tag,u8 len,u8 id)
 	Pack_t.len += 12;
 
 	printf_232("%s",Pack_t.data);
-	printf_wifi("%s",Pack_t.data);
+	printf("%s",Pack_t.data);
 
 
 	return true;

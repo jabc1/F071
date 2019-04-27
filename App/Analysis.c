@@ -1,8 +1,26 @@
+/************Copyright(C) Kaikai Technology 2019-03-29***********************
+File name		: Analysis.c
+Description		: 主要实现系统命令解析及打包功能
+Platform		: MDK V5.26.0.0
+Version			: V1.0
+Author			: Jason
+Create Time		: 2019-04-26
+Modify			: 
+Modify Time		: 
+******************************************************************************/
 #include "Analysis.h"
 _Tagdata tagdata;
 _CMD packcmd;
 
-u8 info_out_fifo(FIFO_t *fifoytpe,u8 *len,u8 *data)//出队一条信息
+/*******************************************************************************
+* @Function		:u8 info_out_fifo(FIFO_t *fifoytpe,u8 *len,u8 *data)
+* @Description	:查找一条标签信息
+* @Input		:FIFO_t *fifoytpe,u8 *len,
+* @Output		:u8 *data
+* @Return		:false or true
+* @Others		:null
+*******************************************************************************/
+u8 info_out_fifo(FIFO_t *fifoytpe,u8 *len,u8 *data)
 {
 	u8 length,head_temp;
 	do{
@@ -24,7 +42,15 @@ u8 info_out_fifo(FIFO_t *fifoytpe,u8 *len,u8 *data)//出队一条信息
 	return true;
 }
 
-u8 find_tag(u8 *indata,u8 *tagnum,u8 *tagdata)//将出队信息解析出标签信息后入队列
+/*******************************************************************************
+* @Function		:u8 find_tag(u8 *indata,u8 *tagnum,u8 *tagdata)
+* @Description	:将出队信息解析出标签信息后入队列
+* @Input		:u8 *indata
+* @Output		:u8 *tagnum,u8 *tagdata
+* @Return		:false or true
+* @Others		:null
+*******************************************************************************/
+u8 find_tag(u8 *indata,u8 *tagnum,u8 *tagdata)
 {
 	u16 temp_crc;
 	_CMD *pPack;
@@ -49,6 +75,15 @@ u8 find_tag(u8 *indata,u8 *tagnum,u8 *tagdata)//将出队信息解析出标签信息后入队列
 	fifo_puts(&TagFifo,(pPack->data),(pPack->len - 12));
 	return true;
 }
+
+/*******************************************************************************
+* @Function		:u8 tag_out_fifo(FIFO_t *fifoytpe,u8 *otagtype,u8 *otype,u8 *olen,u8 *odata)
+* @Description	:查找标签信息
+* @Input		:FIFO_t *fifoytpe
+* @Output		:u8 *otagtype,u8 *otype,u8 *olen,u8 *odata
+* @Return		:false or true
+* @Others		:null
+*******************************************************************************/
 u8 tag_out_fifo(FIFO_t *fifoytpe,u8 *otagtype,u8 *otype,u8 *olen,u8 *odata)
 {
 	u8 head_temp;

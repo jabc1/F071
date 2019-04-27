@@ -1,3 +1,13 @@
+/************Copyright(C) Kaikai Technology 2019-03-29***********************
+File name		: Analysis.c
+Description		: 主要实现系统命令解析相关定义
+Platform		: MDK V5.26.0.0
+Version			: V1.0
+Author			: Jason
+Create Time		: 2019-04-26
+Modify			: 
+Modify Time		: 
+******************************************************************************/
 #ifndef _analysis_h
 #define _analysis_h
 #include "Command.h"

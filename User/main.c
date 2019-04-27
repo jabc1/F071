@@ -1,3 +1,13 @@
+/************Copyright(C) Kaikai Technology 2019-03-29***********************
+File name		: main.c
+Description		: 主程序入口
+Platform		: MDK V5.26.0.0
+Version			: V1.0
+Author			: Jason
+Create Time		: 2019-04-25
+Modify			: 
+Modify Time		: 
+******************************************************************************/
 #include "sys_clock.h"
 #include "Sysgpio.h"
 #include "Sysuart.h"

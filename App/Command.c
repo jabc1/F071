@@ -1,3 +1,13 @@
+/************Copyright(C) Kaikai Technology 2019-03-29***********************
+File name		: Command.c
+Description		: 主要实现读标签命令功能
+Platform		: MDK V5.26.0.0
+Version			: V1.0
+Author			: Jason
+Create Time		: 2019-04-26
+Modify			: 
+Modify Time		: 
+******************************************************************************/
 #include "Command.h"
 //由于指令是从串口读出来的，故只能将指令一条条打包，希望后面可以将指令格式进行统一打包
 //指令说明
@@ -31,6 +41,14 @@
 //>>FA 16 FF 00 31 02 03 06 00 03 00 03 00 02 00 00 01 00 02 00 00 8B 00//读标签指令2
 //<<FA 0C 01 00 31 00 00 00 00 00 00 50 41//没有标签时返回
 
+/*******************************************************************************
+* @Function		:u16 cal_crc16_ext(u16 initval ,u8 *ptr, u8 len)
+* @Description	:计算crc校验
+* @Input		:u16 initval ,u8 *ptr, u8 len
+* @Output		:null
+* @Return		:crc
+* @Others		:null
+*******************************************************************************/
 u16 cal_crc16_ext(u16 initval ,u8 *ptr, u8 len)
 {
 	u16 crc;
@@ -57,6 +75,14 @@ u16 cal_crc16_ext(u16 initval ,u8 *ptr, u8 len)
 	return(crc);
 }
 
+/*******************************************************************************
+* @Function		:u16 cal_crc16_ext(u16 initval ,u8 *ptr, u8 len)
+* @Description	:计算crc校验
+* @Input		:u16 initval ,u8 *ptr, u8 len
+* @Output		:null
+* @Return		:crc
+* @Others		:null
+*******************************************************************************/
 void one_cmd()
 {
 	u16 tmp;

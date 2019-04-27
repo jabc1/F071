@@ -1,3 +1,13 @@
+/************Copyright(C) Kaikai Technology 2019-03-29***********************
+File name		: WifiCon.h
+Description		: 主要实现wifi连接功能相关定义
+Platform		: MDK V5.26.0.0
+Version			: V1.0
+Author			: Jason
+Create Time		: 2019-04-09
+Modify			: 
+Modify Time		: 
+******************************************************************************/
 #ifndef _wificon_h
 #define _wificon_h
 #include "arm_base_define.h"

@@ -707,6 +707,26 @@
               <FileType>5</FileType>
               <FilePath>..\App\WifiConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>ReCmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App\ReCmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>ReCmd.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\App\ReCmd.h</FilePath>
+            </File>
+            <File>
+              <FileName>Function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App\Function.c</FilePath>
+            </File>
+            <File>
+              <FileName>Function.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\App\Function.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

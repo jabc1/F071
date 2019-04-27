@@ -39,6 +39,7 @@ u8 *check_cmd(u8 *cmd)
 	tbuf[i] = '\0';
 	//printf_dma("%s",tbuf);
 	strx=strstr((const char*)&tbuf[0],(const char*)cmd);
+	//strx=strstr((const char*)&tbuf[0],(const char*)"CONNECT");
 	return (u8*)strx;
 }
 
@@ -52,8 +53,8 @@ u8 *check_cmd(u8 *cmd)
 *******************************************************************************/
 u8 wifi_mode_send_cmd(u8 *cmd,u8 *ack,u16 waittime)
 {
-	u8 res=0;
-	printf_wifi("%s",cmd);
+	u8 res=1;
+	printf("%s",cmd);
 	if(ack && waittime)
 	{
 		delay_xms(5);
@@ -64,7 +65,7 @@ u8 wifi_mode_send_cmd(u8 *cmd,u8 *ack,u16 waittime)
 			{
 				if(check_cmd(ack))
 				{
-					printf_232("send ok %s\n",cmd);
+					printf_232("%s send ok!\n",cmd);
 					res = 0;
 					break;
 				}
@@ -89,7 +90,7 @@ u8 wifi_mode_send_cmd(u8 *cmd,u8 *ack,u16 waittime)
 void wifi_reset()
 {
 	//wifi_mode_send_cmd((u8 *)BACKAT,(u8 *)OK,2000);
-	printf_wifi("%s",BACKAT);
+	printf("%s",BACKAT);
 	delay_xms(3200);
 	wifi_mode_send_cmd((u8 *)CLOSESER,(u8 *)OK,50);
 	wifi_mode_send_cmd((u8 *)EXITLINK,(u8 *)OK,50);
@@ -124,7 +125,7 @@ void wifi_init()
 	if(wifi_mode_send_cmd((u8 *)CIPSEND,(u8 *)START,100) == 0)
 	{
 		Wifi_t.connect = true;
-		printf_wifi("test tcp send\r\n");
+		printf("test tcp send\r\n");
 		printf_232("tcp connect ok\r\n");
 	}
 	else

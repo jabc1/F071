@@ -36,8 +36,8 @@ void _ttywrch(int ch)
 }
 int fputc(int ch,FILE *f)
 {
-	while((USART2->ISR & 0x40) == 0);
-	USART2->TDR = (uint8_t)ch;
+	while((USART1->ISR & 0x40) == 0);
+	USART1->TDR = (uint8_t)ch;
 	return ch;
 }
 
