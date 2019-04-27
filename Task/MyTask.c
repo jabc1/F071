@@ -94,17 +94,33 @@ void start_task(void *pvParameters)
 
 void master1_task(void *pvParameters)//任务一用于232通信
 {
-	u8 buf[10];
+//	u8 buf[10];
+	u8 len;
+	u8 lentemp;
+	u8 tagtype,type,taglen;
+	u8 buf[12];
+	Wifi_t.respond = true;
 	while(1)
 	{
 		TogglePin(LED1);
 		if(!fifo_empty(&TagCacheFifo))
 		{
-			if(fifo_gets(&TagCacheFifo,buf,10))
+			if(info_out_fifo(&TagCacheFifo,&len,&tagdata.data[0]))
 			{
-				printf_232("232=%s",buf);
-				printf("232->wifi=%s",buf);
+				find_tag(tagdata.data,&lentemp,&tagdata.tag[0]);
 			}
+//			if(fifo_gets(&TagCacheFifo,buf,10))
+//			{
+//				printf_232("232=%s",buf);
+//				printf("232->wifi=%s",buf);
+//			}
+		}
+		memset(buf,0,sizeof(buf));
+		if((!fifo_empty(&TagFifo))&&(Wifi_t.respond == true))
+		{
+			tag_out_fifo(&TagFifo,&tagtype,&type,&taglen,&buf[0]);
+			Pack(buf,taglen,0x0a);
+			Wifi_t.respond = false;
 		}
 		vTaskDelay(50);
 	}
@@ -113,7 +129,7 @@ void master1_task(void *pvParameters)//任务一用于232通信
 void master2_task(void *pvParameters)//用于数据打包如对
 {
 	u16 tmp;
-	u8 buf[100];
+	u8 buf[256];
 	wifi_reset();
 	while(1)
 	{
@@ -122,6 +138,13 @@ void master2_task(void *pvParameters)//用于数据打包如对
 		{
 			if(!fifo_empty(&WifiFifo))
 			{
+				tmp = fifo_find(&WifiFifo,(u8 *)"msg!ok",6);
+				if(fifo_cmp(&WifiFifo,tmp,(u8 *)"msg!ok",6))
+				{
+					fifo_Clr(&WifiFifo);
+					Wifi_t.respond = true;
+				}
+
 				tmp = fifo_validSize(&WifiFifo);
 				memset(buf,0,sizeof(buf));
 				if(fifo_gets(&WifiFifo,buf,tmp))
@@ -151,8 +174,17 @@ void master4_task(void *pvParameters)//简单任务
 {
 	while(1)
 	{
-		//TogglePin(LED2);
-		vTaskDelay(120);
+		Count_time();
+		if(RunFlag.alame)
+		{
+			TogglePin(LED2);
+		}
+		if(RunFlag.autof)
+		{
+			//RunFlag.autonum++;
+			TogglePin(LED4);
+		}
+		vTaskDelay(100);
 	}
 }
 

@@ -21,6 +21,47 @@ const struct attr_exe_data SysAttrTable[] =
 };
 
 /*******************************************************************************
+* @Function		:void Count_time()
+* @Description	:统计时间
+* @Input		:null
+* @Output		:null
+* @Return		:len
+* @Others		:null
+*******************************************************************************/
+void Count_time()
+{
+	if(RunFlag.ms++ >= 9)
+	{
+		RunFlag.ms = 0;
+		RunFlag.alamet++;
+		RunFlag.timt++;
+		if(RunFlag.sec++ >= 59)
+		{
+			RunFlag.sec = 0;
+			if(RunFlag.min++ >= 59)
+			{
+				RunFlag.min = 0;
+			}
+		}
+	}
+	if(RunFlag.alamet >= 10)
+	{
+		RunFlag.alame = false;
+	}
+	if((RunFlag.timt >= RunFlag.tim)&&(RunFlag.tim >= 2))
+	{
+		RunFlag.timt = 0;
+		RunFlag.autonum++;
+		RunFlag.autof = true;
+	}
+	if(RunFlag.autonum >= 20)
+	{
+		RunFlag.tim = 0;
+		RunFlag.autof = false;
+	}
+}
+
+/*******************************************************************************
 * @Function		:u8 GetAttrNum(void)
 * @Description	:获取列表长度
 * @Input		:null
@@ -91,7 +132,17 @@ RunStatus Inv_fun(u8 *cmd,u8 *data)
 	val = atoi((char *)data);
 
 	RunFlag.tim = val;
-
+	RunFlag.timt = 0;
+	if(RunFlag.tim == 1)
+	{
+		RunFlag.autonum = 0;
+		RunFlag.autof = true;
+	}
+	else
+	{
+		RunFlag.autof = false;
+	}
+	
 	printf("inventory time %d\r\n",val);
 	return RUN_OK;
 }
@@ -114,6 +165,7 @@ RunStatus Alarm_fun(u8 *cmd,u8 *data)
 	{
 		printf("Alarm_fun start");
 		RunFlag.alame = true;
+		RunFlag.alamet = 0;
 	}
 	else if(strncmp((char *)data,(char *)"no",2)==0)
 	{

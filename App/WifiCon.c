@@ -136,6 +136,7 @@ void wifi_con()
 			else
 			{
 				WifiStatus = OK_e;//连接成功
+				cmd_wait_time(2);
 			}
 			break;
 		case BACKAT_e:

@@ -39,7 +39,7 @@ u8 *check_cmd(u8 *cmd)
 	tbuf[i] = '\0';
 	//printf_dma("%s",tbuf);
 	strx=strstr((const char*)&tbuf[0],(const char*)cmd);
-	//strx=strstr((const char*)&tbuf[0],(const char*)"CONNECT");
+
 	return (u8*)strx;
 }
 
@@ -91,7 +91,7 @@ void wifi_reset()
 {
 	//wifi_mode_send_cmd((u8 *)BACKAT,(u8 *)OK,2000);
 	printf("%s",BACKAT);
-	delay_xms(3200);
+	delay_xms(3500);
 	wifi_mode_send_cmd((u8 *)CLOSESER,(u8 *)OK,50);
 	wifi_mode_send_cmd((u8 *)EXITLINK,(u8 *)OK,50);
 }

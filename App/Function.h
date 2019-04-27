@@ -30,14 +30,25 @@ struct attr_exe_data
 	RunStatus (*exe_attr)(u8 *,u8 *);
 };
 
+#pragma pack(push,1)
 typedef struct
 {
 	u8 alame;
+	u8 alamet;
+	u8 autof;
+	u8 autonum;
 	u8 tim;
+	u8 timt;
+	u8 ms;
+	u8 sec;
+	u8 min;
 }_Run_s;
+#pragma pack(pop)
 
 
 
+extern _Run_s RunFlag;
+void Count_time(void);
 RunStatus MsgDeal(u8 *data,u32 len);
 RunStatus Inv_fun(u8 *cmd,u8 *data);
 RunStatus Alarm_fun(u8 *cmd,u8 *data);
