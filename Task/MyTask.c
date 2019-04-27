@@ -18,6 +18,7 @@ Modify Time		:
 #include "Pack.h"
 #include "WifiCon.h"
 #include "ReCmd.h"
+#include "Function.h"
 
 #define START_TASK_PRIO		1
 #define START_STK_SIZE 		32
@@ -137,7 +138,7 @@ void master2_task(void *pvParameters)//用于数据打包如对
 		vTaskDelay(50);
 	}
 }
-void master3_task(void *pvParameters)//简单任务
+void master3_task(void *pvParameters)//实现报警功能和盘点功能
 {
 	while(1)
 	{

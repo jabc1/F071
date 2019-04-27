@@ -148,7 +148,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Uart1DMA</ItemText>
+          <ItemText>Pack</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>p_attr_exe</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>
@@ -749,7 +754,7 @@
 
   <Group>
     <GroupName>Memory</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

@@ -13,7 +13,14 @@ Modify Time		:
 #include "Debugprintf.h"
 #include "Function.h"
 
-
+/*******************************************************************************
+* @Function		:u8 Analysis_cmd(u8 *cmd)
+* @Description	:进行命令解析功能
+* @Input		:u8 *cmd
+* @Output		:null
+* @Return		:true
+* @Others		:null
+*******************************************************************************/
 u8 Analysis_cmd(u8 *cmd)
 {
 	char *token;
@@ -29,12 +36,15 @@ u8 Analysis_cmd(u8 *cmd)
 	while(token != NULL)
 	{
 		segment_ptr[i] = token;
+		#ifdef debug_p
 		printf("%s\r\n",segment_ptr[i]);
 		pack_printf((u8 *)segment_ptr[i],strlen(segment_ptr[i]));
 		pack_printf((u8 *)"\r\n",2);
+		#endif
 		i++;
 		token = strtok(NULL,s);
 	}
+	MsgDeal((u8 *)segment_ptr,1);
 	return true;
 }
 
