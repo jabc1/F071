@@ -15,5 +15,7 @@ Modify Time		:
 
 void printf_232(const char *format, ...);
 void printf_wifi(const char *format, ...);
+void printf_uart1(const char *format, ...);
 void pack_printf(u8 *data,u16 len);
+void printf_1(u8 *data,u16 len);
 #endif

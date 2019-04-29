@@ -38,10 +38,13 @@ typedef struct{
 	u8 send;
 	u8 respond;//检测回应信息
 }_WIFI_t;
+typedef struct{
+	u8 flag;
+}_Reads;
 #pragma pack(pop)
 
 extern _WIFI_t Wifi_t;
-
+extern _Reads	Reads;
 u8 *check_cmd(u8 *cmd);
 u8 wifi_mode_send_cmd(u8 *cmd,u8 *ack,u16 waittime);
 void wifi_reset(void);

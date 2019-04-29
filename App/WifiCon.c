@@ -43,7 +43,7 @@ void wifi_con()
 	{
 		case OK_e:
 			Wifi_t.connect = true;
-			printf_232("connect succ!\r\n");
+			//printf_232("connect succ!\r\n");
 			fifo_Clr(&WifiFifo);
 			WifiStatus = BACKAT_e;
 			break;

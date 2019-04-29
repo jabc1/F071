@@ -18,7 +18,7 @@ Modify Time		:
 #include "Delay.h"
 
 _WIFI_t Wifi_t;
-
+_Reads	Reads;
 /*******************************************************************************
 * @Function		:u8 *check_cmd(u8 *cmd)
 * @Description	:主要实现check是否有正确返回cmd
@@ -65,7 +65,7 @@ u8 wifi_mode_send_cmd(u8 *cmd,u8 *ack,u16 waittime)
 			{
 				if(check_cmd(ack))
 				{
-					printf_232("%s send ok!\n",cmd);
+					//printf_232("%s send ok!\n",cmd);
 					res = 0;
 					break;
 				}

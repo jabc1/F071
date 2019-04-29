@@ -132,7 +132,10 @@ void delay_ms(u32 nms)
 void delay_xms(u32 nms)
 {
 	u32 i;
-	for(i=0;i<nms;i++) delay_us(1000);
+	for(i=0;i<nms;i++) 
+	{
+		delay_us(1000);
+	}
 }
 
 

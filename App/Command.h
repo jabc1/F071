@@ -11,13 +11,30 @@ Modify Time		:
 #ifndef _command_h
 #define _command_h
 #include "arm_base_define.h"
-u16 cal_crc16_ext(u16 initval ,u8 *ptr, u8 len);
 
+typedef enum{
+	STAUTS0=0,
+	STAUTS1,
+	STAUTS2,
+	STAUTS3,
+	STAUTS4,
+	STAUTS5,
+	STAUTS6,
+	STAUTS7,
+	STAUTS8,
+	STAUTS9,
+	STAUTS10,
+	STAUTS11,
+}_READ_s;
+
+extern _READ_s READ_STUATS;
+u16 cal_crc16_ext(u16 initval ,u8 *ptr, u8 len);
 u8 send_data(u8 *data,u8 len);
 
-
-
-
+void Read_fun(void);
+void read_tag_cmd(void);
+void cmd10(void);
+void cmd11(void);
 
 #endif
 

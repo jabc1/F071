@@ -47,13 +47,11 @@ void MX_USART1_UART_Init(void)
 		Error_Handler();
 	}
 
-//	//开启dma接收
+	//开启dma接收
 //	HAL_UART_Receive_DMA(&huart1, Uart1DMA.RX_pData,RX_LEN);  
 //	//开启串口中断
 	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
-//	__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
-//	__HAL_UART_CLEAR_FLAG(&huart1,UART_FLAG_TC);
-	__HAL_UART_ENABLE_IT(&huart1,UART_IT_RXNE);
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 }
 
 /*******************************************************************************
@@ -68,10 +66,10 @@ void MX_USART3_UART_Init(void)
 {
 
 	huart3.Instance = USART3;
-	huart3.Init.BaudRate = 115200;
-	huart3.Init.WordLength = UART_WORDLENGTH_8B;
+	huart3.Init.BaudRate = 38400;
+	huart3.Init.WordLength = UART_WORDLENGTH_9B;
 	huart3.Init.StopBits = UART_STOPBITS_1;
-	huart3.Init.Parity = UART_PARITY_NONE;
+	huart3.Init.Parity = UART_PARITY_EVEN;
 	huart3.Init.Mode = UART_MODE_TX_RX;
 	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
@@ -82,9 +80,12 @@ void MX_USART3_UART_Init(void)
 		Error_Handler();
 	}
 	//开启dma接收
-	HAL_UART_Receive_DMA(&huart3, Uart3DMA.RX_pData,RX_LEN);  
-	//开启串口中断
+//	HAL_UART_Receive_DMA(&huart3, Uart3DMA.RX_pData,RX_LEN);  
+//	//开启串口中断
+//	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+
 	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+	__HAL_UART_ENABLE_IT(&huart3,UART_IT_RXNE);
 }
 
 /*******************************************************************************
@@ -100,10 +101,10 @@ void MX_DMA_Init(void)
 	/* DMA controller clock enable */
 	__HAL_RCC_DMA1_CLK_ENABLE();
 
-	/* DMA interrupt init */
-	/* DMA1_Channel2_3_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA1_Channel2_3_IRQn, 3, 0);
-	HAL_NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
+//	/* DMA interrupt init */
+//	/* DMA1_Channel2_3_IRQn interrupt configuration */
+//	HAL_NVIC_SetPriority(DMA1_Channel2_3_IRQn, 3, 0);
+//	HAL_NVIC_EnableIRQ(DMA1_Channel2_3_IRQn);
 //	/* DMA1_Channel4_5_6_7_IRQn interrupt configuration */
 //	HAL_NVIC_SetPriority(DMA1_Channel4_5_6_7_IRQn, 3, 0);
 //	HAL_NVIC_EnableIRQ(DMA1_Channel4_5_6_7_IRQn);
@@ -113,11 +114,11 @@ void MX_DMA_Init(void)
 /**
   * @brief This function handles DMA1 channel 2 and 3 interrupts.
   */
-void DMA1_Channel2_3_IRQHandler(void)
-{
-	HAL_DMA_IRQHandler(&hdma_usart3_tx);
-	HAL_DMA_IRQHandler(&hdma_usart3_rx);
-}
+//void DMA1_Channel2_3_IRQHandler(void)
+//{
+//	HAL_DMA_IRQHandler(&hdma_usart3_tx);
+//	HAL_DMA_IRQHandler(&hdma_usart3_rx);
+//}
 
 
 //void DMA1_Channel4_5_6_7_IRQHandler(void)
@@ -129,9 +130,9 @@ void DMA1_Channel2_3_IRQHandler(void)
 typedef enum{
 	UART_RX_STATE_READY,
 	UART_RX_STATE_START
-}_uart1RxState;
-_uart1RxState uart1RxState=UART_RX_STATE_READY;
-
+}_uartRxState;
+_uartRxState uart1RxState=UART_RX_STATE_READY;
+_uartRxState uart3RxState=UART_RX_STATE_READY;
 void user_Uart1Handler()
 {
 	u8 temp=0;
@@ -170,7 +171,7 @@ void USART1_IRQHandler(void)//wifi
 //		TogglePin(LED2);
 //	}
 //	HAL_UART_IRQHandler(&huart1);
-
+//	 u16 temp;
 //	if((__HAL_UART_GET_FLAG(&huart1,UART_FLAG_IDLE) != RESET))  
 //	{
 //		__HAL_UART_CLEAR_IDLEFLAG(&huart1);
@@ -184,21 +185,47 @@ void USART1_IRQHandler(void)//wifi
 //	HAL_UART_IRQHandler(&huart1);
 
 }
-
+void user_Uart3Handler()
+{
+	u8 temp=0;
+	if((__HAL_UART_GET_FLAG(&huart3,UART_FLAG_RXNE)!=RESET))
+	{
+		temp = (uint8_t)(huart3.Instance->RDR);
+		if(uart3RxState == UART_RX_STATE_READY)
+		{
+			uart3RxState = UART_RX_STATE_START;
+			Uart3DMA.RX_Size = 0;
+			Uart3DMA.RX_pData[Uart3DMA.RX_Size++] = temp;
+		}
+		else if(uart3RxState == UART_RX_STATE_START) 
+		{
+			Uart3DMA.RX_pData[Uart3DMA.RX_Size++] = temp;
+		}
+		__HAL_UART_CLEAR_FLAG(&huart3,UART_FLAG_RXNE);
+	}
+	if((__HAL_UART_GET_FLAG(&huart3,UART_FLAG_IDLE)!=RESET))
+	{
+		//TogglePin(LED4);
+		fifo_puts(&TagCacheFifo,Uart3DMA.RX_pData,Uart3DMA.RX_Size);
+		uart3RxState = UART_RX_STATE_READY;
+		__HAL_UART_CLEAR_FLAG(&huart3,UART_FLAG_IDLE);
+	}
+}
 void USART3_4_IRQHandler(void)//232
 {
-	u16 temp;  
-	if((__HAL_UART_GET_FLAG(&huart3,UART_FLAG_IDLE) != RESET))  
-	{
-		__HAL_UART_CLEAR_IDLEFLAG(&huart3);
-		HAL_UART_DMAStop(&huart3);
-		temp = huart3.hdmarx->Instance->CNDTR;
-		Uart3DMA.RX_Size =  RX_LEN - temp;
-		HAL_UART_Receive_DMA(&huart3,Uart3DMA.RX_pData,RX_LEN);
-		fifo_puts(&TagCacheFifo,Uart3DMA.RX_pData,Uart3DMA.RX_Size);
-		//TogglePin(LED4);
-	}
-	HAL_UART_IRQHandler(&huart3);
+	user_Uart3Handler();
+//	u16 temp;  
+//	if((__HAL_UART_GET_FLAG(&huart3,UART_FLAG_IDLE) != RESET))  
+//	{
+//		__HAL_UART_CLEAR_IDLEFLAG(&huart3);
+//		HAL_UART_DMAStop(&huart3);
+//		temp = huart3.hdmarx->Instance->CNDTR;
+//		Uart3DMA.RX_Size =  RX_LEN - temp;
+//		HAL_UART_Receive_DMA(&huart3,Uart3DMA.RX_pData,RX_LEN);
+//		fifo_puts(&TagCacheFifo,Uart3DMA.RX_pData,Uart3DMA.RX_Size);
+//		//TogglePin(LED4);
+//	}
+//	HAL_UART_IRQHandler(&huart3);
 }
 
 
@@ -290,42 +317,42 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF4_USART3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* USART3 DMA Init */
-    /* USART3_RX Init */
-    hdma_usart3_rx.Instance = DMA1_Channel3;
-    hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart3_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
-    {
-      Error_Handler();
-    }
+//    /* USART3 DMA Init */
+//    /* USART3_RX Init */
+//    hdma_usart3_rx.Instance = DMA1_Channel3;
+//    hdma_usart3_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+//    hdma_usart3_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+//    hdma_usart3_rx.Init.MemInc = DMA_MINC_ENABLE;
+//    hdma_usart3_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+//    hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+//    hdma_usart3_rx.Init.Mode = DMA_NORMAL;
+//    hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
+//    if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
+//    {
+//      Error_Handler();
+//    }
 
-    __HAL_DMA_REMAP_CHANNEL_ENABLE(DMA_REMAP_USART3_DMA_CH32);
+//    __HAL_DMA_REMAP_CHANNEL_ENABLE(DMA_REMAP_USART3_DMA_CH32);
 
-    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart3_rx);
+//    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart3_rx);
 
-    /* USART3_TX Init */
-    hdma_usart3_tx.Instance = DMA1_Channel2;
-    hdma_usart3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_usart3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart3_tx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart3_tx.Init.Mode = DMA_NORMAL;
-    hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
-    {
-      Error_Handler();
-    }
+//    /* USART3_TX Init */
+//    hdma_usart3_tx.Instance = DMA1_Channel2;
+//    hdma_usart3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+//    hdma_usart3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+//    hdma_usart3_tx.Init.MemInc = DMA_MINC_ENABLE;
+//    hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+//    hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+//    hdma_usart3_tx.Init.Mode = DMA_NORMAL;
+//    hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
+//    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
+//    {
+//      Error_Handler();
+//    }
 
-    __HAL_DMA_REMAP_CHANNEL_ENABLE(DMA_REMAP_USART3_DMA_CH32);
+//    __HAL_DMA_REMAP_CHANNEL_ENABLE(DMA_REMAP_USART3_DMA_CH32);
 
-    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart3_tx);
+//    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart3_tx);
 
     /* USART3 interrupt Init */
     HAL_NVIC_SetPriority(USART3_4_IRQn, 3, 0);

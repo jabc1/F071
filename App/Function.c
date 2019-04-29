@@ -10,7 +10,7 @@ Modify Time		:
 ******************************************************************************/
 #include "Function.h"
 #include "Debugprintf.h"
-
+#include "Command.h"
 _Run_s RunFlag;
 
 const struct attr_exe_data SysAttrTable[] =
@@ -18,6 +18,8 @@ const struct attr_exe_data SysAttrTable[] =
 	{(u8 *)"inventory",Inv_fun},
 	{(u8 *)"alarm",Alarm_fun},
 	{(u8 *)"version",Ver_fun},
+	{(u8 *)"Read1",Read1_fun},
+	{(u8 *)"Read2",Read2_fun},
 };
 
 /*******************************************************************************
@@ -25,7 +27,7 @@ const struct attr_exe_data SysAttrTable[] =
 * @Description	:统计时间
 * @Input		:null
 * @Output		:null
-* @Return		:len
+* @Return		:null
 * @Others		:null
 *******************************************************************************/
 void Count_time()
@@ -54,7 +56,7 @@ void Count_time()
 		RunFlag.autonum++;
 		RunFlag.autof = true;
 	}
-	if(RunFlag.autonum >= 20)
+	if(RunFlag.autonum >= 10)
 	{
 		RunFlag.tim = 0;
 		RunFlag.autof = false;
@@ -132,10 +134,10 @@ RunStatus Inv_fun(u8 *cmd,u8 *data)
 	val = atoi((char *)data);
 
 	RunFlag.tim = val;
-	RunFlag.timt = 0;
+	RunFlag.timt = val;
+	RunFlag.autonum = 0;
 	if(RunFlag.tim == 1)
 	{
-		RunFlag.autonum = 0;
 		RunFlag.autof = true;
 	}
 	else
@@ -143,7 +145,7 @@ RunStatus Inv_fun(u8 *cmd,u8 *data)
 		RunFlag.autof = false;
 	}
 	
-	printf("inventory time %d\r\n",val);
+	//printf("inventory time %d\r\n",val);
 	return RUN_OK;
 }
 
@@ -163,9 +165,10 @@ RunStatus Alarm_fun(u8 *cmd,u8 *data)
 	}
 	if(strncmp((char *)data,(char *)"yes",3)==0)
 	{
-		printf("Alarm_fun start");
+		//printf("Alarm_fun start");
 		RunFlag.alame = true;
 		RunFlag.alamet = 0;
+		READ_STUATS = STAUTS0;
 	}
 	else if(strncmp((char *)data,(char *)"no",2)==0)
 	{
@@ -196,8 +199,38 @@ RunStatus Ver_fun(u8 *cmd,u8 *data)
 	return RUN_OK;
 }
 
+/*******************************************************************************
+* @Function		:RunStatus Read1_fun(u8 *cmd,u8 *data)
+* @Description	:读命令一
+* @Input		:u8 *cmd,u8 *data
+* @Output		:null
+* @Return		:RunStatus
+* @Others		:null
+*******************************************************************************/
+RunStatus Read1_fun(u8 *cmd,u8 *data)
+{
+	if(strncmp((char *)cmd,(char *)"Read1",5)!=0)
+	{
+		return RUN_ERROR;
+	}
+	RunFlag.read1 = true;
+}
 
-
-
+/*******************************************************************************
+* @Function		:RunStatus Read2_fun(u8 *cmd,u8 *data)
+* @Description	:读命令二
+* @Input		:u8 *cmd,u8 *data
+* @Output		:null
+* @Return		:RunStatus
+* @Others		:null
+*******************************************************************************/
+RunStatus Read2_fun(u8 *cmd,u8 *data)
+{
+	if(strncmp((char *)cmd,(char *)"Read2",5)!=0)
+	{
+		return RUN_ERROR;
+	}
+	RunFlag.read2 = true;
+}
 
 

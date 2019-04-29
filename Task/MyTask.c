@@ -21,16 +21,16 @@ Modify Time		:
 #include "Function.h"
 
 #define START_TASK_PRIO		1
-#define START_STK_SIZE 		32
+#define START_STK_SIZE 		64
 TaskHandle_t StartTask_Handler;
 void start_task(void *pvParameters);
 
-#define MASTER1_TASK_PRIO		2
+#define MASTER1_TASK_PRIO		3
 #define MASTER1_STK_SIZE 		256
 TaskHandle_t MASTER1Task_Handler;
 void master1_task(void *pvParameters);
 
-#define MASTER2_TASK_PRIO		3
+#define MASTER2_TASK_PRIO		2
 #define MASTER2_STK_SIZE 		512
 TaskHandle_t MASTER2Task_Handler;
 void master2_task(void *pvParameters);
@@ -40,11 +40,19 @@ void master2_task(void *pvParameters);
 TaskHandle_t MASTER3Task_Handler;
 void master3_task(void *pvParameters);
 
-#define MASTER4_TASK_PRIO		4
+#define MASTER4_TASK_PRIO		5
 #define MASTER4_STK_SIZE 		64
 TaskHandle_t MASTER4Task_Handler;
 void master4_task(void *pvParameters);
 
+/*******************************************************************************
+* @Function		:start_system
+* @Description	:初始化主任务
+* @Input		:null
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
 void start_system()
 {
 	xTaskCreate((TaskFunction_t )start_task,
@@ -56,6 +64,14 @@ void start_system()
 	vTaskStartScheduler();
 }
 
+/*******************************************************************************
+* @Function		:start_task
+* @Description	:任务初始化
+* @Input		:*pvParameters
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
 void start_task(void *pvParameters)
 {
 	taskENTER_CRITICAL();
@@ -92,41 +108,61 @@ void start_task(void *pvParameters)
 	taskEXIT_CRITICAL();
 }
 
-void master1_task(void *pvParameters)//任务一用于232通信
+/*******************************************************************************
+* @Function		:master1_task
+* @Description	:任务一用于232通信
+* @Input		:*pvParameters
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
+void master1_task(void *pvParameters)//
 {
-//	u8 buf[10];
+	u8 tmp;
 	u8 len;
 	u8 lentemp;
 	u8 tagtype,type,taglen;
-	u8 buf[12];
+	u8 buf[64];
 	Wifi_t.respond = true;
 	while(1)
 	{
 		TogglePin(LED1);
 		if(!fifo_empty(&TagCacheFifo))
 		{
-			if(info_out_fifo(&TagCacheFifo,&len,&tagdata.data[0]))
-			{
-				find_tag(tagdata.data,&lentemp,&tagdata.tag[0]);
-			}
-//			if(fifo_gets(&TagCacheFifo,buf,10))
+//			if(info_out_fifo(&TagCacheFifo,&len,&tagdata.data[0]))
 //			{
+//				find_tag(tagdata.data,&lentemp,&tagdata.tag[0]);
+//			}
+			len =0;
+			tmp = fifo_validSize(&TagCacheFifo);
+			if(fifo_gets(&TagCacheFifo,buf,tmp))
+			{
 //				printf_232("232=%s",buf);
 //				printf("232->wifi=%s",buf);
-//			}
+				printf_1(buf,tmp);
+				memset(buf,0,tmp);
+			}
 		}
-		memset(buf,0,sizeof(buf));
 		if((!fifo_empty(&TagFifo))&&(Wifi_t.respond == true))
 		{
 			tag_out_fifo(&TagFifo,&tagtype,&type,&taglen,&buf[0]);
 			Pack(buf,taglen,0x0a);
 			Wifi_t.respond = false;
+			memset(buf,0,sizeof(buf));
 		}
 		vTaskDelay(50);
 	}
 }
 
-void master2_task(void *pvParameters)//用于数据打包如对
+/*******************************************************************************
+* @Function		:master2_task
+* @Description	:用于数据打包如对
+* @Input		:*pvParameters
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
+void master2_task(void *pvParameters)//
 {
 	u16 tmp;
 	u8 buf[256];
@@ -149,7 +185,7 @@ void master2_task(void *pvParameters)//用于数据打包如对
 				memset(buf,0,sizeof(buf));
 				if(fifo_gets(&WifiFifo,buf,tmp))
 				{
-					printf_232("link_wifi->%s\r\n",buf);
+					//printf_232("link_wifi->%s\r\n",buf);
 					Analysis_cmd(buf);
 				}
 			}
@@ -161,7 +197,16 @@ void master2_task(void *pvParameters)//用于数据打包如对
 		vTaskDelay(50);
 	}
 }
-void master3_task(void *pvParameters)//实现报警功能和盘点功能
+
+/*******************************************************************************
+* @Function		:master3_task
+* @Description	:实现报警功能和盘点功能
+* @Input		:*pvParameters
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
+void master3_task(void *pvParameters)//
 {
 	while(1)
 	{
@@ -170,20 +215,44 @@ void master3_task(void *pvParameters)//实现报警功能和盘点功能
 	}
 }
 
-void master4_task(void *pvParameters)//简单任务
+/*******************************************************************************
+* @Function		:master4_task
+* @Description	:简单任务
+* @Input		:*pvParameters
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
+void master4_task(void *pvParameters)
 {
 	while(1)
 	{
-		Count_time();
 		if(RunFlag.alame)
 		{
 			TogglePin(LED2);
 		}
 		if(RunFlag.autof)
 		{
-			//RunFlag.autonum++;
+			RunFlag.autof = false;
+			read_tag_cmd();
 			TogglePin(LED4);
+			//printf("inventory=%d",RunFlag.autonum);
 		}
+		if(Wifi_t.connect)
+		{
+			Read_fun();
+		}
+		if(RunFlag.read1)
+		{
+			RunFlag.read1 = false;
+			cmd11();
+		}
+		if(RunFlag.read2)
+		{
+			RunFlag.read2 = false;
+			cmd10();
+		}
+		Count_time();
 		vTaskDelay(100);
 	}
 }

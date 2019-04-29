@@ -62,7 +62,24 @@ void printf_wifi(const char *format, ...)
 	HAL_UART_Transmit_DMA(&huart1,(u8 *)print_buffer,length);
 	va_end(args);
 }
-
+/*******************************************************************************
+* @Function		:printf_uart1()
+* @Description	:连接wifi使用重定向功能
+* @Input		:const char *format, ...
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
+void printf_uart1(const char *format, ...)
+{
+	static char print_buffer[256];
+	u16 length;
+	va_list args;
+	va_start(args, format);
+	length = vsnprintf(print_buffer, sizeof(print_buffer), (char*)format, args);
+	va_end(args);
+	printf_1((u8 *)print_buffer,length);
+}
 /*******************************************************************************
 * @Function		:printf_232()
 * @Description	:使用dma进行串口重定向
@@ -71,6 +88,18 @@ void printf_wifi(const char *format, ...)
 * @Return		:null
 * @Others		:null
 *******************************************************************************/
+#if 1
+void printf_232(const char *format, ...)
+{
+	static char print_buffer[256];
+	u16 length;
+	va_list args;
+	va_start(args, format);
+	length = vsnprintf((char*)print_buffer, sizeof(print_buffer), (char*)format, args);
+	va_end(args);
+	pack_printf((u8 *)print_buffer,length);
+}
+#else
 void printf_232(const char *format, ...)
 {
 	static char print_buffer[256];
@@ -83,6 +112,7 @@ void printf_232(const char *format, ...)
 	HAL_UART_Transmit_DMA(&huart3,(u8 *)print_buffer,length);
 	va_end(args);
 }
+#endif
 
 /*******************************************************************************
 * @Function		:pack_printf()
@@ -101,7 +131,23 @@ void pack_printf(u8 *data,u16 len)
 		USART3->TDR = (uint8_t)data[i];
 	}
 }
-
+/*******************************************************************************
+* @Function		:printf_1()
+* @Description	:发送指定长度内容
+* @Input		:len长度*data内容
+* @Output		:null
+* @Return		:null
+* @Others		:null
+*******************************************************************************/
+void printf_1(u8 *data,u16 len)
+{
+	u16 i;
+	for(i=0;i<len;i++)
+	{
+		while((USART1->ISR & 0x40) == 0);
+		USART1->TDR = (uint8_t)data[i];
+	}
+}
 
 
 

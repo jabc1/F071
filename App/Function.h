@@ -42,6 +42,8 @@ typedef struct
 	u8 ms;
 	u8 sec;
 	u8 min;
+	u8 read1;
+	u8 read2;
 }_Run_s;
 #pragma pack(pop)
 
@@ -53,7 +55,8 @@ RunStatus MsgDeal(u8 *data,u32 len);
 RunStatus Inv_fun(u8 *cmd,u8 *data);
 RunStatus Alarm_fun(u8 *cmd,u8 *data);
 RunStatus Ver_fun(u8 *cmd,u8 *data);
-
+RunStatus Read1_fun(u8 *cmd,u8 *data);
+RunStatus Read2_fun(u8 *cmd,u8 *data);
 #endif
 
 
